@@ -121,43 +121,45 @@ def main():
     Parses any arguments and kicks off functionality
     """
     parser = argparse.ArgumentParser(description='Migrate data from one Redis server to another')
-    parser.add_argument('from-hostname',
+    parser.add_argument('from_hostname',
                         help='the hostname of the redis instance to transfer data from')
-    parser.add_argument('to-hostname',
+    parser.add_argument('to_hostname',
                         help='the hostname of the redis instance to transfer data from')
-    parser.add_argument('--from-port',
+    parser.add_argument('--from_port',
                         help='the port of the redis instance to transfer data from',
                         type=int, default=6379)
-    parser.add_argument('--to-port',
+    parser.add_argument('--to_port',
                         help='the port of the redis instance to transfer data from',
                         type=int, default=6379)
-    parser.add_argument('--from-password',
+    parser.add_argument('--from_password',
                         help='the password of the redis instance to transfer data from')
-    parser.add_argument('--to-password',
+    parser.add_argument('--to_password',
                         help='the password of the redis instance to transfer data from')
-    parser.add_argument('--from-database',
+    parser.add_argument('--from_database',
                         help='the database of the redis instance to transfer data from',
                         type=int, default=0)
-    parser.add_argument('--to-database',
+    parser.add_argument('--to_database',
                         help='the database of the redis instance to transfer data from',
                         type=int, default=0)
 
     args = parser.parse_args()
 
-    from_host = getattr(args, 'from-hostname')
-    to_host = getattr(args, 'to-hostname')
+    from_host = getattr(args, 'from_hostname')
+    to_host = getattr(args, 'to_hostname')
     from_port = args.from_port
     to_port = args.to_port
+    from_password = args.from_password
+    to_password = args.to_password
     from_db = args.from_database
     to_db = args.to_database
-    from_redis = redis.StrictRedis(host=from_host, port=from_port, db=from_db)
+    from_redis = redis.StrictRedis(host=from_host, port=from_port, db=from_db, password=from_password)
     
     keys = get_keys(from_redis)
     key_types = get_key_types(from_redis, keys)
     values = get_values(from_redis, keys, key_types) 
     data = map_data(keys, values, key_types)
     
-    to_redis = redis.StrictRedis(host=to_host, port=to_port, db=to_db)
+    to_redis = redis.StrictRedis(host=to_host, port=to_port, db=to_db, password=to_password)
     success_values = migrate_data(to_redis, data)
     success = check_success(success_values)
 
